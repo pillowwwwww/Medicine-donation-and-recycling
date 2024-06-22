@@ -99,6 +99,17 @@ const verify = async (contractAddress, args) => {
 17. 拿到一个项目 可以输入  ```yarn 和 yarn hardhat deploy```来安装此项目所有的依赖项。
 18. solhint：分析代码是否存在潜在错误.
     输入``` yarn solhint contracts/*.sol(这里是你想测试的文件)```
-19. 使用hardhat-deploy包进行部署：https://github.com/wighawag/hardhat-deploy?tab=readme-ov-file#installation
+19. 安装hardhat-deploy包进行部署：https://github.com/wighawag/hardhat-deploy?tab=readme-ov-file#installation
     ``` yarn add --dev hardhat-deploy``` 
     在hardhat.config中加入```require("hardhat-deploy")```
+    安装
+    ```npm install --save-dev @nomicfoundation/hardhat-ethers hardhat-deploy-ethers ethers```
+    安装完成后，在deploy文件夹中添加的所有脚本都会在执行"yarn hardhat deploy"时被运行。
+20. 使用helper-hardhat-config,使用aave，部署到多个链上并使用多个不同的地址，if chainId is X use address Y, if chinaId is Z, use address C。
+    新建helper-hardhat-config.js
+
+
+21. 当使用localhost作为测试网络时，在运行本地网络时，需要确保Hardhat节点正在运行。
+    ```
+    npx hardhat node
+    ```
