@@ -26,13 +26,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         waitConfirmations: network.config.blockConfirmations || 1, // 等待确认的区块数
     });
     log(`LogisticsChain deployed at ${logisticsChain.address}`);
-
-    // 部署完成后验证合约
-    if (
+    if (network.config.zksync) {
+        await hre.run("verify:verify", {
+            address: logisticsChain.address,
+            contract: "contracts/LogisticsChain.sol:LogisticsChain",
+            constructorArguments: [relayChainAddress],
+        });
+    } else if (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
     ) {
-        await verify(logisticsChain.address, [relayChain.address]); // 验证合约
+        await verify(logisticsChain.address, [relayChainAddress]);
     }
 };
 

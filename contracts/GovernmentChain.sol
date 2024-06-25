@@ -1,24 +1,33 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
-
-// 引入RelayChain合约接口
-interface IRelayChain {
-    function registerUser(address _userAddress, string memory _name, string memory _id, uint256 _creditScore) external;
-}
+pragma solidity ^0.8.18;
 
 contract GovernmentChain {
-    // RelayChain合约地址
-    address public relayChain;
+    struct User {
+        string username;
+        uint256 creditScore;
+    }
+    address public relayChainAddress;
+    constructor(address _relayChainAddress) {
+        relayChainAddress = _relayChainAddress;
+    }
+    mapping(address => User) public users;
 
-    // 构造函数，初始化RelayChain合约地址
-    constructor(address _relayChain) {
-        relayChain = _relayChain;
+    event UserVerified(address indexed user, string username, uint256 creditScore);
+
+    function verifyUser(address user, string memory username, string memory idNumber) public returns (bool) {
+        // 暂时为空白函数，实际应该调用政府数据库验证身份证号码和名字是否匹配
+        // 假设验证通过
+        bool isVerified = true;
+        if (isVerified) {
+            users[user] = User(username, 0);
+            emit UserVerified(user, username, 0);
+        }
+        return isVerified;
     }
 
-    // 验证并注册用户
-    function verifyAndRegisterUser(address _userAddress, string memory _name, string memory _id, uint256 _creditScore) public {
-        // 在这里进行用户真实性验证（例如KYC）
-        // 验证后在RelayChain上注册用户
-        IRelayChain(relayChain).registerUser(_userAddress, _name, _id, _creditScore);
+    function updateUserCredit(address user, uint256 newCreditScore) public {
+        require(bytes(users[user].username).length != 0, "User not found");
+        users[user].creditScore = newCreditScore;
+        //emit UserVerified(user, users[user].username, newCreditScore);
     }
 }

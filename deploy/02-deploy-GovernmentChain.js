@@ -28,11 +28,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log(`GovernmentChain deployed at ${governmentChain.address}`);
 
     // 部署完成后验证合约
-    if (
+    if (network.config.zksync) {
+        await hre.run("verify:verify", {
+            address: governmentChain.address,
+            contract: "contracts/GovernmentChain.sol:GovernmentChain",
+            constructorArguments: [relayChainAddress],
+        });
+    } else if (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
     ) {
-        await verify(governmentChain.address, [relayChain.address]); // 验证合约
+        await verify(governmentChain.address, [relayChainAddress]);
     }
 };
 

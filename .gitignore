@@ -9,6 +9,8 @@ deployments
 cache
 artifacts
 
+artifacts-zk
+cache-zk
 # TypeChain files
 /typechain
 /typechain-types
