@@ -1,15 +1,17 @@
 const { ethers } = require("ethers");
+require("dotenv").config();
+/**
+ * 用于监听中继链的事件，并在接收到事件时调用相应的平行链方法，实现跨链通信。
+ */
 
 //注意：除了userChain，其余的还没有实现！
 // Layer 1 provider (Sepolia)
 const l1Provider = new ethers.providers.JsonRpcProvider(
-    "https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID",
+    process.env.Sepolia_RPC_URL,
 );
 
 // Layer 2 provider (zkSync)
-const l2Provider = new ethers.providers.JsonRpcProvider(
-    "https://zksync2-testnet.zksync.dev",
-);
+const l2Provider = new ethers.providers.JsonRpcProvider(process.env.L2_RPC_URL);
 
 // RelayChain ABI and address
 const relayChainAbi = [
@@ -60,7 +62,7 @@ const logisticsChain = new ethers.Contract(
     logisticsChainAbi,
     l2Provider.getSigner(),
 );
-
+//Relay Chain触发DonationRecorded
 relayChain.on(
     "DonationRecorded",
     async (from, medicineName, batchNumber, timestamp) => {
@@ -87,19 +89,35 @@ relayChain.on(
         console.log("Donation recorded on UserChain");
     },
 );
-
-relayChain.on("LogisticsUpdated", async (from, logisticsInfo, timestamp) => {
+//监听物流信息更新
+relayChain.on("LogisticsUpdated", async (transportId, status, location, timestamp) => {
     console.log(
-        `Logistics updated from ${from}: ${logisticsInfo} at ${timestamp}`,
+        `Logistics updated: Transport ID ${transportId}, Status ${status}, Location ${location}`,
     );
 
-    // Call updateLogistics on GovernmentChain
-    const tx1 = await governmentChain.updateLogistics(from, logisticsInfo);
-    await tx1.wait();
-    console.log("Logistics updated on GovernmentChain");
+    // 调用 LogisticsChain 的 relayUpdate 方法
+    const tx = await logisticsChain.relayUpdate(
+        transportId,
+        relayChainAddress,
+        relayChainAddress,
+        status,
+        location,
+        timestamp
+    );
+    await tx.wait();
+    console.log(`Logistics update relayed to Layer 2`);
+});
 
-    // Call updateLogistics on LogisticsChain
-    const tx2 = await logisticsChain.updateLogistics(from, logisticsInfo);
+relayChain.on("MedicineReceived", async (receiver, medicineName, batchNumber, timestamp) => {
+    console.log(`Medicine received by ${receiver}: ${medicineName} ${batchNumber} at ${timestamp}`);
+
+    // Call handleMedicineReceived on GovernmentChain
+    const tx1 = await governmentChain.handleMedicineReceived(receiver, medicineName, batchNumber);
+    await tx1.wait();
+    console.log("Medicine received recorded on GovernmentChain");
+
+    // Call handleMedicineReceived on LogisticsChain
+    const tx2 = await logisticsChain.handleMedicineReceived(receiver, medicineName, batchNumber);
     await tx2.wait();
-    console.log("Logistics updated on LogisticsChain");
+    console.log("Medicine received recorded on LogisticsChain");
 });

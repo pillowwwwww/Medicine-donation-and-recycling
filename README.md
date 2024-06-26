@@ -114,7 +114,7 @@ const verify = async (contractAddress, args) => {
     npx hardhat node
     ```
 
-======================================添加了zksync网络===================================================
+=============添加了zksync网络=========
 22.
     ```bash
     npx hardhat deploy --tags relaychain --network Sepolia

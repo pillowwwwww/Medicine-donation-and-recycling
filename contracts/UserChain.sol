@@ -17,6 +17,7 @@ contract UserChain {
         uint256 expirationDate;
         string productionLocation;
         string batchNumber;
+        bool received; //是否已收到药品
     }
 
     struct User {
@@ -49,28 +50,53 @@ contract UserChain {
     function donateMedicine(string memory name, string memory batchNumber, uint256 expirationDate, string memory productionLocation) public {
         // 确保用户已注册
         require(users[msg.sender].userAddress != address(0), "User not registered");
-        Medicine memory newMedicine = Medicine(name, msg.sender, expirationDate, productionLocation, batchNumber);
+        Medicine memory newMedicine = Medicine(name, msg.sender, expirationDate, productionLocation, batchNumber,false);
         donations[msg.sender].push(newMedicine);
          // 触发药品捐赠事件
         emit MedicineDonated(msg.sender, name, batchNumber, block.timestamp);
+        // 通知Relay Chain
+        (bool relaySuccess,) = relayChainAddress.call(
+            abi.encodeWithSignature("recordDonation(address,string,string)", msg.sender, name, batchNumber)
+        );
+        require(relaySuccess, "Failed to notify Relay Chain");
 
         // 直接调用 LogisticsChain 合约的方法
-        (bool success,) = logisticsChainAddress.call(
+        (bool logisticsSuccess,) = logisticsChainAddress.call(
             abi.encodeWithSignature("createTransport(address,string)", msg.sender, "Initial logistics info")
         );
-        require(success, "Failed to notify LogisticsChain");
+        require(logisticsSuccess, "Failed to notify LogisticsChain");
     }
-    // 接收药品
-    function receiveMedicine(address donor, uint256 index) public {
-        require(users[msg.sender].userAddress != address(0), "User not registered");
-        require(index < donations[donor].length, "Invalid medicine index");
-        Medicine memory medicine = donations[donor][index];
-        // 这里可以添加药品接收逻辑
-        emit MedicineReceived(msg.sender, medicine.name, medicine.batchNumber, block.timestamp);
-        // 直接调用 LogisticsChain 合约的方法
-        (bool success,) = logisticsChainAddress.call(
-            abi.encodeWithSignature("updateLogistics(address,string)", msg.sender, "MedicineReceived")
+
+    // 被捐赠者收到了药品
+    function receiveMedicine(string memory name, string memory batchNumber) public {
+        // 找到对应的药品记录并更新为已接收
+        bool found = false;
+        for (uint i = 0; i < donations[msg.sender].length; i++) {
+            if (keccak256(abi.encodePacked(donations[msg.sender][i].name)) == keccak256(abi.encodePacked(name)) &&
+                keccak256(abi.encodePacked(donations[msg.sender][i].batchNumber)) == keccak256(abi.encodePacked(batchNumber))) {
+                donations[msg.sender][i].received = true;
+                found = true;
+                break;
+            }
+        }
+        require(found, "Medicine not found");
+
+        // 触发药品接收事件
+        emit MedicineReceived(msg.sender, name, batchNumber, block.timestamp);
+
+        // 通知Relay Chain
+        (bool success,) = relayChainAddress.call(
+            abi.encodeWithSignature("recordMedicineReceived(address,string,string)", msg.sender, name, batchNumber)
         );
-        require(success, "Failed to notify LogisticsChain");
+        require(success, "Failed to notify Relay Chain");
     }
+
+    // 接收捐赠事件
+    function receiveDonation(address from, string memory medicineName, string memory batchNumber) public {
+        require(msg.sender == relayChainAddress, "Only Relay Chain can call this function");
+        // 记录捐赠信息
+        Medicine memory receivedMedicine = Medicine(medicineName, from, 0, "", batchNumber,false);
+        donations[from].push(receivedMedicine);
+    }
+
 }

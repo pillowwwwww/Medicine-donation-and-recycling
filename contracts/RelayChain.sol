@@ -11,9 +11,11 @@ contract RelayChain {
     // 事件：记录捐赠
     event DonationRecorded(address indexed from, string medicineName, string batchNumber, uint256 timestamp);
 
-    // 事件：更新物流
-    event LogisticsUpdated(address indexed from, string logisticsInfo, uint256 timestamp);
+    //记录药品接收
+    event MedicineReceived(address indexed receiver, string medicineName, string batchNumber, uint256 timestamp);
 
+    // 事件：更新物流，通知跨链中间件。不写时间戳，避免跨链时间戳不一致
+    event LogisticsUpdated(uint256 transportId, string status, string location);
     // 注册新链
     function registerChain(string memory chainName, address chainAddress) public {
         chains[chainName] = chainAddress;
@@ -25,8 +27,14 @@ contract RelayChain {
         emit DonationRecorded(msg.sender, medicineName, batchNumber, block.timestamp);
     }
 
+    //记录收到药品
+    function recordMedicineReceived(address receiver, string memory medicineName, string memory batchNumber) external {
+        emit MedicineReceived(receiver, medicineName, batchNumber, block.timestamp);
+    }
+
+   
     // 更新物流事件，参数为物流信息
-    function updateLogistics(string memory logisticsInfo) public {
-        emit LogisticsUpdated(msg.sender, logisticsInfo, block.timestamp); // 触发更新物流事件
+    function updateLogistics(uint256 transportId, string memory status, string memory location) public {
+        emit LogisticsUpdated(transportId, status, location); // 触发更新物流事件
     }
 }

@@ -15,13 +15,19 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const chainId = network.config.chainId;
 
     // 获取RelayChain合约地址
-    const relayChain = await deployments.get("RelayChain");
+    // const relayChain = await deployments.get("RelayChain");
+    // console.log(`relaychain的地址为 ${relayChain.address}`);
 
+    //手动提供 Sepolia 上的 RelayChain 地址!
+    const relayChainAddressOnSepolia =
+        "0x65D5A72D33b2145538332012F5F18DeCf8FdF706";
+    
+    
     // 部署GovernmentChain合约
     log("Deploying Government Chain...");
     const governmentChain = await deploy("GovernmentChain", {
         from: deployer, // 部署者地址
-        args: [relayChain.address], // 构造函数参数
+        args: [relayChainAddressOnSepolia], // 构造函数参数
         log: true, // 日志记录
         waitConfirmations: network.config.blockConfirmations || 1, // 等待确认的区块数
     });
@@ -29,16 +35,18 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     // 部署完成后验证合约
     if (network.config.zksync) {
+        log(`zksync验证`);
         await hre.run("verify:verify", {
             address: governmentChain.address,
             contract: "contracts/GovernmentChain.sol:GovernmentChain",
-            constructorArguments: [relayChainAddress],
+            constructorArguments: [relayChainAddressOnSepolia],
         });
     } else if (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
     ) {
-        await verify(governmentChain.address, [relayChainAddress]);
+        log(`etherscan验证`);
+        await verify(governmentChain.address, [relayChainAddressOnSepolia]);
     }
 };
 
