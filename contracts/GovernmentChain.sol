@@ -51,7 +51,6 @@ contract GovernmentChain {
         require(bytes(users[user].username).length != 0, "User not found");
         users[user].creditScore = newCreditScore;
         //emit UserVerified(user, users[user].username, newCreditScore);
-        //出发了这个时间，然后呢？
     }
 
     // 定义与Relay Chain事件对应的方法

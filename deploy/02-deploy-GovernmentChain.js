@@ -20,15 +20,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     //手动提供 Sepolia 上的 RelayChain 地址!
     const relayChainAddressOnSepolia =
-        "0x65D5A72D33b2145538332012F5F18DeCf8FdF706";
-    
-    
+        "0x5fbdb2315678afecb367f032d93f642f64180aa3"; //hardhat本地relaychain地址
+    //Sepolia测试网地址：process.env.RELAY_CHAIN_ADDRESS_ON_SEPOLIA;
+
     // 部署GovernmentChain合约
     log("Deploying Government Chain...");
     const governmentChain = await deploy("GovernmentChain", {
         from: deployer, // 部署者地址
         args: [relayChainAddressOnSepolia], // 构造函数参数
-        log: true, // 日志记录
+        log: true,
         waitConfirmations: network.config.blockConfirmations || 1, // 等待确认的区块数
     });
     log(`GovernmentChain deployed at ${governmentChain.address}`);

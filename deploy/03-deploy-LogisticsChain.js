@@ -14,14 +14,16 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     // 获取当前网络的chainId
     const chainId = network.config.chainId;
 
-    // 获取RelayChain合约地址
-    const relayChain = await deployments.get("RelayChain");
+    //手动提供 Sepolia 上的 RelayChain 地址!
+    const relayChainAddressOnSepolia =
+        "0x5fbdb2315678afecb367f032d93f642f64180aa3"; //此时为hardhat本地relaychain地址
+    //Sepolia测试网地址：process.env.RELAY_CHAIN_ADDRESS_ON_SEPOLIA;
 
     // 部署LogisticsChain合约
     log("Deploying Logistics Chain...");
     const logisticsChain = await deploy("LogisticsChain", {
         from: deployer, // 部署者地址
-        args: [relayChain.address], // 构造函数参数
+        args: [relayChainAddressOnSepolia], // 构造函数参数
         log: true, // 日志记录
         waitConfirmations: network.config.blockConfirmations || 1, // 等待确认的区块数
     });
@@ -30,13 +32,13 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         await hre.run("verify:verify", {
             address: logisticsChain.address,
             contract: "contracts/LogisticsChain.sol:LogisticsChain",
-            constructorArguments: [relayChainAddress],
+            constructorArguments: [relayChainAddressOnSepolia],
         });
     } else if (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
     ) {
-        await verify(logisticsChain.address, [relayChainAddress]);
+        await verify(logisticsChain.address, [relayChainAddressOnSepolia]);
     }
 };
 

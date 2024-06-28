@@ -8,7 +8,7 @@ const {
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     // 获取部署和日志记录方法
-    const { deploy, log } = deployments;
+    const { deploy, log, get } = deployments;
     // 获取部署账户
     const { deployer } = await getNamedAccounts();
     // 获取当前网络的chainId
@@ -19,8 +19,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     //手动提供 Sepolia 上的 RelayChain 地址!
     const relayChainAddressOnSepolia =
-        "0x65D5A72D33b2145538332012F5F18DeCf8FdF706";
-        //待测试：是否能获取正确的合约地址？
+        process.env.RELAY_CHAIN_ADDRESS_ON_SEPOLIA;
+    //待测试：是否能获取正确的合约地址？
     const governmentChain = await get("GovernmentChain");
     const logisticsChain = await get("LogisticsChain");
 

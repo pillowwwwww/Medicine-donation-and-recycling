@@ -19,7 +19,7 @@ const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "https://pro.
 //prettier-ignore
 const Optisim_Sepolia_RPC_URL = process.env.Optisim_Sepolia_RPC_URL || "https://dashboard.alchemy.com/apps/pxzfptm1q8cuo6ow";
 //prettier-ignore
-const ZKsync_Sepolia_RPC_URL=process.env.ZKsync_Sepolia_RPC_URL || "https://dashboard.alchemy.com/apps/pxzfptm1q8cuo6ow"
+const L2_Alchemy_RPC_URL=process.env.L2_Alchemy_RPC_URL || "https://dashboard.alchemy.com/apps/pxzfptm1q8cuo6ow"
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -46,7 +46,7 @@ module.exports = {
         },
         zkSyncTestnet: {
             //url: ZKsync_Sepolia_RPC_URL,
-            url: "https://sepolia.era.zksync.dev",
+            url: L2_Alchemy_RPC_URL, //"https://sepolia.era.zksync.dev",
             ethNetwork: "sepolia", // Ethereum network to use
             zksync: true,
             accounts: [Sepolia_PRIVATE_KEY],
