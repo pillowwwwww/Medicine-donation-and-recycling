@@ -2,6 +2,8 @@
 pragma solidity ^0.8.18;
 
 contract RelayChain {
+
+    address public owner;
     // 映射存储每个链的合约地址
     mapping(string => address) public chains;
 
@@ -16,11 +18,32 @@ contract RelayChain {
 
     // 事件：更新物流，通知跨链中间件。不写时间戳，避免跨链时间戳不一致
     event LogisticsUpdated(uint256 transportId, string status, string location);
-    // 注册新链
-    function registerChain(string memory chainName, address chainAddress) public {
-        chains[chainName] = chainAddress;
-        emit ChainRegistered(chainName, chainAddress);
+
+      constructor() {
+        owner = msg.sender;
     }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function");
+        _;
+    }
+
+    modifier onlyAuthorized(string memory chainName) {
+        require(msg.sender == chains[chainName], "Only authorized chain can call this function");
+        _;
+    }
+
+    //把三个链的地址存入chains
+    // function initializeChains(address _governmentChain, address _userChain, address _logisticsChain) external onlyOwner {
+    //         chains["GovernmentChain"] = _governmentChain;
+    //         chains["UserChain"] = _userChain;
+    //         chains["LogisticsChain"] = _logisticsChain;
+    //     }
+    // // 注册新链
+    // function registerChain(string memory chainName, address chainAddress) public {
+    //     chains[chainName] = chainAddress;
+    //     emit ChainRegistered(chainName, chainAddress);
+    // }
 
     // 记录捐赠事件
     function recordDonation(string memory medicineName, string memory batchNumber) public {

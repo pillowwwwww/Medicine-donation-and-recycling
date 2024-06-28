@@ -1,6 +1,10 @@
 # Sample Hardhat Project
 
 
+手动修改部分：
+中间件脚本，修改每个合约的Sepolia部署地址or本地部署地址！
+每个部署脚本需要手动修改每个合约的Sepolia部署地址or本地部署地址！
+
 部署命令：
 npx hardhat deploy --tags relaychain --network Sepolia
 npx hardhat deploy --tags relaychain --network hardhat
