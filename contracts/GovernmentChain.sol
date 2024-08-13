@@ -31,6 +31,7 @@ contract GovernmentChain {
 
     event UserVerified(address indexed user, string username, uint256 creditScore);
     event MedicineReceived(address indexed receiver, string medicineName, string batchNumber, uint256 timestamp);
+    event MedicineApproved(address indexed receiver, string medicineName, string batchNumber, uint256 timestamp);
 
     modifier onlyRelayChain() {
         require(msg.sender == relayChainAddress, "Only Relay Chain can call this function");
@@ -51,6 +52,13 @@ contract GovernmentChain {
         require(bytes(users[user].username).length != 0, "User not found");
         users[user].creditScore = newCreditScore;
         //emit UserVerified(user, users[user].username, newCreditScore);
+    }
+
+    function getDonations(address from) public view returns (Donation[] memory) {
+        return donations[from];
+    }
+    function getLogistics(address from) public view returns (LogisticsInfo[] memory) {
+        return logisticsRecords[from];
     }
 
     // 定义与Relay Chain事件对应的方法
@@ -76,6 +84,30 @@ contract GovernmentChain {
         emit MedicineReceived(receiver, medicineName, batchNumber, block.timestamp);
         // 更新用户信用分数+5
         updateUserCredit(receiver, users[receiver].creditScore + 5);
+    }
+
+    //新增功能： 药品回收批准请求
+    function approveMedicineRecovery(address receiver, string memory medicineName, string memory batchNumber) public {
+        require(msg.sender == relayChainAddress, "Only Relay Chain can call this function");
+
+        // 模拟检查过程，实际应用中应包含更详细的检查逻辑
+        bool isApproved = true; // 假设检查通过
+
+        if (isApproved) {
+            // 通知LogisticsChain
+            (bool success,) = relayChainAddress.call(
+                abi.encodeWithSignature("updateLogisticsStatus(address,string,string,string,string)", receiver, medicineName, batchNumber, "Approved", "Government")
+            );
+            require(success, "Failed to notify LogisticsChain");
+            
+            // 通知UserChain
+            (success,) = relayChainAddress.call(
+                abi.encodeWithSignature("updateUserStatus(address,string,string)", receiver, medicineName, batchNumber)
+            );
+            require(success, "Failed to notify UserChain");
+
+            emit MedicineApproved(receiver, medicineName, batchNumber, block.timestamp);
+        }
     }
     
 }

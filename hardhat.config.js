@@ -7,13 +7,12 @@ require("hardhat-deploy");
 require("@matterlabs/hardhat-zksync");
 require("@matterlabs/hardhat-zksync-verify");
 
-//如果没有api key的话，hardhat可能会报错，所以我们在后面随便放一串字符串，这里放的是来源
 //prettier-ignore
 const Sepolia_RPC_URL = process.env.Sepolia_RPC_URL || "https://dashboard.alchemy.com/apps/pxzfptm1q8cuo6ow";
 //prettier-ignore
 const Sepolia_PRIVATE_KEY = process.env.Sepolia_PRIVATE_KEY || "https://dashboard.alchemy.com/apps/pxzfptm1q8cuo6ow";
 //prettier-ignore
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "https://etherscan.io/login";
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice&apikey=BZQS27VV8MDAXKHFZF6WR3RBC1CX1RK2UP";
 //prettier-ignore
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "https://pro.coinmarketcap.com/accou";
 //prettier-ignore
@@ -65,6 +64,12 @@ module.exports = {
         currency: "USD",
         coinmarketcap: COINMARKETCAP_API_KEY, //为了获取货币
         //token,
+        //offline: true,
+        gasPrice: 2, // 设置Gas价格为2 gwei etherscan访问不到，https://etherscan.io/gastracker手动找的
+        howMethodSig: true, // 显示方法签名
+        showTimeSpent: true, // 显示时间花费
+        etherscan: ETHERSCAN_API_KEY,
+        L1: "ethereum",
     },
     namedAccounts: {
         deployer: {

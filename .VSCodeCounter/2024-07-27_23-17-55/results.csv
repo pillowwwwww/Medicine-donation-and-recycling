@@ -1,0 +1,7 @@
+"filename", "language", "Solidity", "json", "comment", "blank", "total"
+"/home/chang/medicine-donation-and-recycling/.prettierrc", "json", 0, 3, 0, 1, 4
+"/home/chang/medicine-donation-and-recycling/contracts/GovernmentChain.sol", "Solidity", 71, 0, 20, 16, 107
+"/home/chang/medicine-donation-and-recycling/contracts/LogisticsChain.sol", "Solidity", 75, 0, 24, 16, 115
+"/home/chang/medicine-donation-and-recycling/contracts/RelayChain.sol", "Solidity", 29, 0, 21, 14, 64
+"/home/chang/medicine-donation-and-recycling/contracts/UserChain.sol", "Solidity", 75, 0, 26, 15, 116
+"Total", "-", 250, 3, 91, 62, 406

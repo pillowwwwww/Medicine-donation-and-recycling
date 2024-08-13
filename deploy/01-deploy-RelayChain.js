@@ -35,7 +35,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const relayChain = await deploy("RelayChain", {
         from: deployer,
         //args: [ethUsdPriceFeedAddress], //构造函数的参数，priceFeedAddress
-        args: args,
+        args: [],
         //我们不想使用硬编码，希望实现if chainId is X use address Y, if chinaId is Z, use address C
         //所以使用aave，部署到多个链上并使用多个不同的地址helper-hardhat-config.js
         log: true,

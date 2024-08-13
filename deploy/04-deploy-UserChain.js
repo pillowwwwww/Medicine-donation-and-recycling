@@ -21,17 +21,26 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const relayChainAddressOnSepolia =
         process.env.RELAY_CHAIN_ADDRESS_ON_SEPOLIA;
     //待测试：是否能获取正确的合约地址？
-    const governmentChain = await get("GovernmentChain");
-    const logisticsChain = await get("LogisticsChain");
-
+    // try {
+    //     const governmentChain = await get("GovernmentChain");
+    //     log(`GovernmentChain address: ${governmentChain.address}`);
+    //     const logisticsChain = await deployments.get("LogisticsChain");
+    //     console.log(logisticsChain.address);
+    // } catch (error) {
+    //     log("Error fetching GovernmentChain:", error);
+    // }
+    const governmentChainAddress =
+        process.env.GOVERNMENT_CHAIN_ADDRESS_ON_SEPOLIA;
+    const logisticsChainAddress =
+        process.env.LOGISTICS_CHAIN_ADDRESS_ON_SEPOLIA;
     // 部署UserChain合约
     log("Deploying User Chain...");
     const userChain = await deploy("UserChain", {
         from: deployer, // 部署者地址
         args: [
             relayChainAddressOnSepolia,
-            governmentChain.address,
-            logisticsChain.address,
+            governmentChainAddress,
+            logisticsChainAddress,
         ], // 构造函数参数
         log: true, // 日志记录
         waitConfirmations: network.config.blockConfirmations || 1, // 等待确认的区块数
@@ -45,8 +54,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
             contract: "contracts/UserChain.sol:UserChain",
             constructorArguments: [
                 relayChainAddressOnSepolia,
-                governmentChain.address,
-                logisticsChain.address,
+                governmentChainAddress,
+                logisticsChainAddress,
             ],
         });
     } else if (
@@ -55,8 +64,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     ) {
         await verify(userChain.address, [
             relayChainAddressOnSepolia,
-            governmentChain.address,
-            logisticsChain.address,
+            governmentChainAddress,
+            logisticsChainAddress,
         ]);
     }
 };

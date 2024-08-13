@@ -28,9 +28,12 @@ contract LogisticsChain {
     //记录和更新物流信息，同时通知 Layer 2 上的其他组件或合约。
     event LogisticsUpdated(uint256 indexed transportId, string status, string location, uint256 timestamp);
     event MedicineReceived(address indexed receiver, string medicineName, string batchNumber, uint256 timestamp);
-
+    // 新增：获取物流记录**
+    function getLogistics(uint256 transportId) public view returns (LogisticsInfo[] memory) {
+        return transportRecords[transportId].logistics;
+    }
     // 创建运输记录函数
-    function createTransport(address receiver) public {
+    function createTransport(address receiver,string memory medicineName, string memory batchNumber) public {
         transportCount++;
         // 初始化一个空的LogisticsInfo数组。Solidity 当前版本不支持从 memory 到 storage 的直接数组复制，我们需要采用另一种方法来初始化和填充结构体数组。
         // LogisticsInfo[] memory emptyLogistics;
@@ -39,6 +42,13 @@ contract LogisticsChain {
         //     receiver: receiver,
         //     logistics: emptyLogistics
         // });
+        //暂时注释
+        // 通知GovernmentChain进行检查和批准
+        (bool success,) = relayChainAddress.call(
+            abi.encodeWithSignature("approveMedicineRecovery(address,string,string)", receiver, medicineName, batchNumber)
+        );
+        require(success, "Failed to request medicine recovery approval from GovernmentChain");
+    
         TransportRecord storage record = transportRecords[transportCount];
         record.sender = msg.sender;
         record.receiver = receiver;
@@ -75,7 +85,7 @@ contract LogisticsChain {
     function receiveDonation(address from, string memory medicineName, string memory batchNumber) public {
         require(msg.sender == relayChainAddress, "Only Relay Chain can call this function");
         // 创建运输记录
-        createTransport(from);
+        createTransport(from,medicineName,batchNumber);
     }
 
     // 处理Relay Chain的药品接收事件

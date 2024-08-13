@@ -1,0 +1,22 @@
+@startuml
+class RelayChain {
+  - address owner
+  - mapping(string => address) chains
+  --
+  + RelayChain()
+  + recordDonation(string medicineName, string batchNumber)
+  + recordMedicineReceived(address receiver, string medicineName, string batchNumber)
+  + updateLogistics(uint256 transportId, string status, string location)
+  --
+  + event ChainRegistered(string chainName, address chainAddress)
+  + event DonationRecorded(address indexed from, string medicineName, string batchNumber, uint256 timestamp)kro
+  + event MedicineReceived(address indexed receiver, string medicineName, string batchNumber, uint256 timestamp)
+  + event LogisticsUpdated(uint256 transportId, string status, string location)
+  --
+  # onlyOwner()
+  # onlyAuthorized(string chainName)
+}
+
+RelayChain -> address : owner
+RelayChain -> "mapping(string => address)" : chains
+@enduml

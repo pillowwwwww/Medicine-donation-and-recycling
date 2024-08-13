@@ -16,7 +16,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     //手动提供 Sepolia 上的 RelayChain 地址!
     const relayChainAddressOnSepolia =
-        "0x5fbdb2315678afecb367f032d93f642f64180aa3"; //此时为hardhat本地relaychain地址
+        process.env.RELAY_CHAIN_ADDRESS_ON_SEPOLIA;
+    //    "0x927778814d69808c5e378E2CD6828C4D6b4ed4f8"; //此时为hardhat本地relaychain地址
     //Sepolia测试网地址：process.env.RELAY_CHAIN_ADDRESS_ON_SEPOLIA;
 
     // 部署LogisticsChain合约
